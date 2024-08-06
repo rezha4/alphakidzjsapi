@@ -72,6 +72,47 @@ app.get('/premiumnanny', async (req, res) => {
   }
 });
 
+app.post("/age", (req, res) => {
+  try {
+    console.log("Received age calculation request");
+
+    const { bornDate } = req.body;
+    console.log(`Born date received: ${bornDate}`);
+
+    if (!bornDate) {
+      console.warn("No born date provided in request");
+      return res.status(400).send("Born date is required");
+    }
+
+    const birthDate = new Date(bornDate);
+    const currentDate = new Date();
+
+    if (isNaN(birthDate.getTime())) {
+      console.warn(`Invalid date format received: ${bornDate}`);
+      return res.status(400).send("Invalid date format");
+    }
+
+    let years = currentDate.getFullYear() - birthDate.getFullYear();
+    let months = currentDate.getMonth() - birthDate.getMonth();
+
+    if (
+      months < 0 ||
+      (months === 0 && currentDate.getDate() < birthDate.getDate())
+    ) {
+      years--;
+      months += 12;
+    }
+
+    const ageString = `${years} tahun, ${months} bulan`;
+    console.log(`Calculated age: ${ageString}`);
+
+    res.json({ age: ageString });
+  } catch (error) {
+    console.error("Error in age calculation:", error);
+    res.status(500).send("Internal Server Error");
+  }
+});
+
 app.listen(port, () => {
   console.log("app listening on port", port);
 });
